@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>sb.birthday</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff4e8a, #8a2be2, #4facfe);
+      color: white;
+      overflow-x: hidden;
+      text-align: center;
+    }
+
+    /* Floating emojis */
+    .floating {
+      position: fixed;
+      bottom: -50px;
+      font-size: 2rem;
+      animation: floatUp 8s linear infinite;
+      opacity: 0.8;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 0.8;
+      }
+
+      100% {
+        transform: translateY(-110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Main container */
+    .container {
+      width: 90%;
+      max-width: 700px;
+      margin: auto;
+      padding: 40px 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Birthday heading */
+    h1 {
+      font-size: clamp(2.5rem, 9vw, 5rem);
+      animation: bounce 1.5s infinite;
+      text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-15px);
+      }
+    }
+
+    .subtitle {
+      font-size: clamp(1.1rem, 4vw, 1.6rem);
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+
+    /* Cake */
+    .cake-area {
+      margin: 40px auto 30px;
+      position: relative;
+      width: 250px;
+      height: 260px;
+    }
+
+    .candle {
+      width: 12px;
+      height: 55px;
+      background: repeating-linear-gradient(
+        45deg,
+        #fff,
+        #fff 5px,
+        #ff5f9e 5px,
+        #ff5f9e 10px
+      );
+
+      position: absolute;
+      top: 30px;
+      left: 119px;
+      border-radius: 5px;
+    }
+
+    /* Candle flame */
+    .flame {
+      width: 20px;
+      height: 30px;
+      background: #ffd700;
+      border-radius: 50%;
+      position: absolute;
+      top: -25px;
+      left: -4px;
+      animation: flicker 0.5s infinite alternate;
+      box-shadow: 0 0 20px orange;
+    }
+
+    @keyframes flicker {
+      from {
+        transform: scale(1) rotate(-5deg);
+      }
+
+      to {
+        transform: scale(1.2) rotate(5deg);
+      }
+    }
+
+    .cake-top {
+      position: absolute;
+      top: 80px;
+      width: 250px;
+      height: 60px;
+      background: #ffb6d9;
+      border-radius: 50%;
+      box-shadow: inset 0 -10px rgba(255, 255, 255, 0.3);
+    }
+
+    .cake-body {
+      position: absolute;
+      top: 110px;
+      width: 250px;
+      height: 120px;
+      background: #ff7bac;
+      border-radius: 0 0 25px 25px;
+    }
+
+    .icing {
+      position: absolute;
+      top: 105px;
+      width: 250px;
+      height: 30px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .cake-text {
+      position: absolute;
+      top: 160px;
+      width: 100%;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #8a2be2;
+      z-index: 2;
+    }
+
+    /* Message box */
+    .funny-box {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 25px;
+      margin: 25px 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .funny-box h2 {
+      margin-bottom: 15px;
+    }
+
+    .funny-box p {
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+
+    /* Buttons */
+    button {
+      border: none;
+      padding: 16px 30px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: white;
+      color: #e91e63;
+      margin: 15px;
+      transition: 0.3s;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      transform: scale(1.1) rotate(-2deg);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    /* Surprise message */
+    #surpriseMessage {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      font-size: 1.2rem;
+      animation: pop 0.5s ease;
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(0);
+      }
+
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    /* Confetti canvas */
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+
+      .container {
+        width: 95%;
+        padding-top: 30px;
+      }
+
+      .cake-area {
+        transform: scale(0.85);
+        margin-top: 15px;
+        margin-bottom: 10px;
+      }
+
+      button {
+        width: 90%;
+        margin: 10px auto;
+      }
+
+      .funny-box {
+        padding: 20px 15px;
+      }
+
+      .funny-box p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Confetti -->
+  <canvas id="confetti"></canvas>
+
+  <!-- Floating emojis -->
+  <div class="floating" style="left: 10%; animation-delay: 0s;">🎈</div>
+  <div class="floating" style="left: 25%; animation-delay: 2s;">💖</div>
+  <div class="floating" style="left: 45%; animation-delay: 4s;">🎉</div>
+  <div class="floating" style="left: 65%; animation-delay: 1s;">🎂</div>
+  <div class="floating" style="left: 85%; animation-delay: 3s;">🥳</div>
+
+  <div class="container">
+
+    <!-- Birthday greeting -->
+    <h1>🎉 Happy Birthday, Sandra 💿! 🎂</h1>
+
+    <p class="subtitle">
+      Another year older... but don't worry! 😌
+      <br>
+      You're not getting old — you're becoming a CLASSIC! 😂✨
+    </p>
+
+
+    <!-- Birthday Cake -->
+    <div class="cake-area">
+
+      <div class="candle">
+        <div class="flame"></div>
+      </div>
+
+      <div class="cake-top"></div>
+
+      <div class="icing"></div>
+
+      <div class="cake-body"></div>
+
+      <div class="cake-text">
+        HAPPY<br>
+        BIRTHDAY!
+      </div>
+
+    </div>
+
+
+    <!-- Love + Funny Message -->
+    <div class="funny-box">
+
+      <h2>🎁 A Special Message For Sandra 💖</h2>
+
+      <p>
+
+        Today is the perfect day to eat way too much cake 🍰,
+        take approximately 847 photos 📸,
+        ignore all responsibilities 😎
+        and pretend calories don't exist! 😂
+        
+        <br><br>
+
+        But seriously... ❤️
+
+        <br>
+
+        You make life brighter, happier and a little more crazy
+        just by being you. Never change...
+
+        <br>
+
+        Well... maybe improve a little. 🤭😂
+
+        <br><br>
+
+        Wishing you unlimited happiness,
+        love, laughter, success,
+        amazing memories and LOTS of cake! 🎂💖
+
+        <br><br>
+
+        Stay awesome, Sandra! 💿✨
+
+      </p>
+
+    </div>
+
+
+    <!-- Surprise button -->
+    <button onclick="showSurprise()">
+      🎁 CLICK FOR A SURPRISE!
+    </button>
+
+
+    <!-- Blow candle -->
+    <button onclick="blowCandles()">
+      🕯️ BLOW THE CANDLE!
+    </button>
+
+
+    <!-- Hidden surprise -->
+    <div id="surpriseMessage">
+
+      🎉 SURPRISE!!! 🎉
+
+      <br><br>
+
+      Sandra, today you officially have permission to:
+
+      <br><br>
+
+      🍰 Eat the cake  
+      <br>
+      🥳 Party like crazy  
+      <br>
+      📸 Take unlimited selfies  
+      <br>
+      🎁 Open ALL the presents  
+      <br>
+      😎 Ignore your age  
+
+      <br><br>
+
+      And most importantly...
+
+      <br><br>
+
+      ❤️ KEEP BEING AMAZING! ❤️
+
+      <br><br>
+
+      Happy Birthday, Sandra! 💿🎂🎉
+
+    </div>
+
+
+    <div class="footer">
+      Made with ❤️, laughter 😂 and a suspicious amount of cake 🎂
+    </div>
+
+  </div>
+
+
+  <script>
+
+    /* =========================
+       SURPRISE BUTTON
+    ========================= */
+
+    function showSurprise() {
+
+      const message =
+        document.getElementById("surpriseMessage");
+
+      message.style.display = "block";
+
+      launchConfetti(300);
+
+    }
+
+
+    /* =========================
+       BLOW CANDLE
+    ========================= */
+
+    function blowCandles() {
+
+      const flame =
+        document.querySelector(".flame");
+
+      flame.style.display = "none";
+
+      setTimeout(() => {
+
+        alert(
+          "🎉 YAYYY! Make a wish, Sandra! 💖✨\n\n" +
+          "Don't tell anyone what it is... 🤫\n" +
+          "Otherwise it might not come true! 😜"
+        );
+
+        launchConfetti(400);
+
+      }, 300);
+
+    }
+
+
+    /* =========================
+       CONFETTI
+    ========================= */
+
+    const canvas =
+      document.getElementById("confetti");
+
+    const ctx =
+      canvas.getContext("2d");
+
+    canvas.width =
+      window.innerWidth;
+
+    canvas.height =
+      window.innerHeight;
+
+    let confetti = [];
+
+
+    /* Resize canvas */
+
+    window.addEventListener("resize", () => {
+
+      canvas.width =
+        window.innerWidth;
+
+      canvas.height =
+        window.innerHeight;
+
+    });
+
+
+    /* Create confetti */
+
+    function launchConfetti(amount) {
+
+      for (let i = 0; i < amount; i++) {
+
+        confetti.push({
+
+          x: Math.random() * canvas.width,
+
+          y: -20,
+
+          size: Math.random() * 8 + 4,
+
+          speedY: Math.random() * 5 + 3,
+
+          speedX: Math.random() * 4 - 2,
+
+          rotation: Math.random() * 360,
+
+          rotationSpeed:
+            Math.random() * 10 - 5,
+
+          color:
+            `hsl(${Math.random() * 360}, 100%, 60%)`
+
+        });
+
+      }
+
+    }
+
+
+    /* Animate confetti */
+
+    function animateConfetti() {
+
+      ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+
+      confetti.forEach((piece, index) => {
+
+        piece.y += piece.speedY;
+
+        piece.x += piece.speedX;
+
+        piece.rotation +=
+          piece.rotationSpeed;
+
+
+        ctx.save();
+
+
+        ctx.translate(
+          piece.x,
+          piece.y
+        );
+
+
+        ctx.rotate(
+          piece.rotation *
+          Math.PI / 180
+        );
+
+
+        ctx.fillStyle =
+          piece.color;
+
+
+        ctx.fillRect(
+
+          -piece.size / 2,
+
+          -piece.size / 2,
+
+          piece.size,
+
+          piece.size
+
+        );
+
+
+        ctx.restore();
+
+
+        /* Remove old confetti */
+
+        if (
+          piece.y >
+          canvas.height + 30
+        ) {
+
+          confetti.splice(
+            index,
+            1
+          );
+
+        }
+
+      });
+
+
+      requestAnimationFrame(
+        animateConfetti
+      );
+
+    }
+
+
+    /* Start animation */
+
+    animateConfetti();
+
+
+    /* Automatic celebration */
+
+    setTimeout(() => {
+
+      launchConfetti(250);
+
+    }, 500);
+
+  </script>
+
+</body>
+</html>
